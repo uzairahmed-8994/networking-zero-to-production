@@ -40,8 +40,9 @@ Each layer wraps the one above it. The recipient unwraps in reverse order.
 This wrapping and unwrapping is called **encapsulation**.
 
 Nobody at the post office reads your letter. They only look at the envelope.
-Nobody on the network reads your HTTP data. Routers only look at IP headers.
 
+Routers generally inspect IP headers to decide where packets should go.
+Application-aware systems like proxies, CDNs, WAFs, and load balancers may also inspect HTTP data at higher layers.
 
 
 ### The OSI Model — The Reference Map (7 layers)
@@ -71,6 +72,7 @@ TCP/IP is what your computer actually implements.
 It collapses OSI's 7 layers into 4 practical ones.
 This is what you work with every day.
 
+In real-world systems, OSI layers 5 and 6 are usually folded into the application layer rather than implemented separately.
 
 | TCP/IP Layer | Maps to OSI Layers | Purpose | Common Protocols |
 |---|---|---|---|
@@ -88,7 +90,6 @@ This is what you work with every day.
 | Internet | Addressing and routing |
 | Network Access | Physical/local network movement |
 
-
 **Key difference:**
 OSI = the full recipe book. Useful for learning and discussions.
 TCP/IP = the actual cooking. What runs on every device.
@@ -96,6 +97,56 @@ TCP/IP = the actual cooking. What runs on every device.
 When someone says "Layer 4" they mean Transport (TCP/UDP) in both models.
 When someone says "Layer 7" they mean Application (HTTP/DNS) in both models.
 
+### Reality vs Theory
+
+The OSI and TCP/IP models are mental models, not strict laws.
+
+Real networking systems do not perfectly separate responsibilities.
+Protocols often overlap layers.
+
+Examples:
+- TLS operates between application and transport behavior
+- HTTP/2 changes transport usage patterns
+- Modern proxies inspect application data while also making routing decisions
+- VPNs can encapsulate packets inside other packets
+
+The models exist to help humans reason about systems and debug problems systematically.
+
+### Applications vs the Kernel
+
+Applications do not send packets directly onto the network.
+
+Applications communicate with the operating system kernel through sockets.
+The kernel handles:
+- TCP/IP
+- routing
+- packet transmission
+- interface communication
+
+When you use a browser, curl, or SSH, the application asks the kernel to send and receive data on its behalf.
+
+
+
+
+### What Is a Port?
+
+An IP address identifies the machine.
+A port identifies the application running on that machine.
+
+Think of:
+- IP address = apartment building
+- Port = apartment number
+
+Examples:
+- 443 → HTTPS
+- 22 → SSH
+- 53 → DNS
+- 5432 → PostgreSQL
+
+One machine can run many applications simultaneously because each application uses a different port.
+
+127.0.0.1 (localhost) means "this machine itself".
+Applications can communicate internally using localhost without traffic leaving the machine.
 
 ### What Happens When You Type a URL — The Full Story
 
@@ -135,7 +186,9 @@ Google: "Yes, I'm ready"       (SYN-ACK)
 You: "Great, let's go"         (ACK)
 ```
 
-**Step 3 — TLS handshake (Application/Presentation Layer)**
+
+
+**Step 3 — TLS handshake (between Application and Transport layers)**
 
 Because this is HTTPS, the connection is encrypted.
 Your browser and Google negotiate encryption keys.
@@ -273,6 +326,17 @@ No single tool shows the entire picture.
 - `ss` can show open connections but not the actual traffic contents
 
 Production debugging requires observing multiple layers together.
+
+## What You Should Focus On
+
+Do not try to memorize every protocol or every layer perfectly.
+
+The goal of this lab is:
+- understanding the flow of communication
+- understanding how layers cooperate
+- building a mental model for later packet captures and debugging
+
+The details become natural through practical labs.
 
 ## Key Insight
 
