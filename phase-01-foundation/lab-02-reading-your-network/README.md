@@ -58,7 +58,24 @@ ip addr
 ```
 
 ```
-[paste real output here]
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet 10.255.255.254/32 brd 10.255.255.254 scope global lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1472 qdisc mq state UP group default qlen 1000
+    link/ether 00:15:5d:c3:7a:d2 brd ff:ff:ff:ff:ff:ff
+    inet 172.20.193.120/20 brd 172.20.207.255 scope global eth0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::215:5dff:fec3:7ad2/64 scope link 
+       valid_lft forever preferred_lft forever
+3: docker0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default 
+    link/ether 22:ce:9e:1a:d9:3d brd ff:ff:ff:ff:ff:ff
+    inet 172.17.0.1/16 brd 172.17.255.255 scope global docker0
+       valid_lft forever preferred_lft forever
 ```
 
 Starting with `ip addr` gives an immediate inventory of every network
@@ -296,7 +313,8 @@ ip route get 8.8.8.8
 ```
 
 ```
-[paste output here]
+8.8.8.8 via 172.20.192.1 dev eth0 src 172.20.193.120 uid 1000 
+    cache 
 ```
 
 `ip route get` asks the kernel to perform an actual route lookup for a
@@ -322,7 +340,16 @@ ss -tulnp
 ```
 
 ```
-[paste real output here]
+Netid              State               Recv-Q               Send-Q                              Local Address:Port                              Peer Address:Port              Process              
+udp                UNCONN              0                    0                                      127.0.0.54:53                                     0.0.0.0:*                                      
+udp                UNCONN              0                    0                                   127.0.0.53%lo:53                                     0.0.0.0:*                                      
+udp                UNCONN              0                    0                                  10.255.255.254:53                                     0.0.0.0:*                                      
+udp                UNCONN              0                    0                                       127.0.0.1:323                                    0.0.0.0:*                                      
+udp                UNCONN              0                    0                                           [::1]:323                                       [::]:*                                      
+tcp                LISTEN              0                    1000                               10.255.255.254:53                                     0.0.0.0:*                                      
+tcp                LISTEN              0                    4096                                127.0.0.53%lo:53                                     0.0.0.0:*                                      
+tcp                LISTEN              0                    4096                                   127.0.0.54:53                                     0.0.0.0:*                                      
+tcp                LISTEN              0                    511                                     127.0.0.1:37677                                  0.0.0.0:*                  users:(("node",pid=765,fd=22))
 ```
 
 `ss` queries the kernel's socket table directly. The flags select
@@ -386,7 +413,10 @@ ss -tulnp | grep LISTEN
 ```
 
 ```
-[paste output here]
+tcp   LISTEN 0      1000   10.255.255.254:53         0.0.0.0:*          
+tcp   LISTEN 0      4096    127.0.0.53%lo:53         0.0.0.0:*          
+tcp   LISTEN 0      4096       127.0.0.54:53         0.0.0.0:*          
+tcp   LISTEN 0      511         127.0.0.1:37677      0.0.0.0:*    users:(("node",pid=765,fd=22))
 ```
 
 This filters to TCP listeners only — a faster way to answer "what is
@@ -411,7 +441,7 @@ ss -tulnp | grep 8080
 ```
 
 ```
-[paste output here]
+tcp   LISTEN 0      5             0.0.0.0:8080       0.0.0.0:*    users:(("python3",pid=73176,fd=3))
 ```
 
 The socket appears within milliseconds of the process binding to the
@@ -425,7 +455,8 @@ ip route get 127.0.0.1
 ```
 
 ```
-[paste output here]
+local 127.0.0.1 dev lo src 127.0.0.1 uid 1000 
+    cache <local> 
 ```
 
 The routing table confirms that traffic to `127.0.0.1` routes via the
@@ -442,7 +473,7 @@ ss -tulnp | grep 8080
 ```
 
 ```
-[paste output here — should be empty]
+-
 ```
 
 The socket disappears immediately after the process exits. If a socket
