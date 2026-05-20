@@ -26,15 +26,14 @@ Lab 03 completed. tcpdump and Wireshark are operational. The
 
 An Ethernet frame has three meaningful sections before the payload:
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  Ethernet Frame                                                   │
-│                                                                   │
-│  ┌──────────────┐  ┌──────────────┐  ┌────────────┐             │
-│  │ Dst MAC      │  │ Src MAC      │  │ EtherType  │  Payload... │
-│  │ 6 bytes      │  │ 6 bytes      │  │ 2 bytes    │             │
-│  └──────────────┘  └──────────────┘  └────────────┘             │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart LR
+    Dst["Destination MAC<br/>6 bytes"]
+    Src["Source MAC<br/>6 bytes"]
+    Type["EtherType<br/>2 bytes"]
+    Payload["Payload<br/>IPv4 / ARP / IPv6"]
+
+    Dst --> Src --> Type --> Payload
 ```
 
 **Destination MAC** — where this frame is going on the local network.
